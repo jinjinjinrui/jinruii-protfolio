@@ -1,0 +1,1465 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>金蕊的作品集</title>
+    <link href="https://fonts.googleapis.com/css2?family=ZCOOL+KuaiLe&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            width: 100vw; height: 100vh;
+            overflow: hidden; cursor: default;
+        }
+
+        /* 桌面背景 */
+        .desktop {
+            width: 100vw; height: 100vh;
+            background: url('images/reference_clean.png') center center / 100% 100% no-repeat;
+            position: relative;
+        }
+
+        /* 文件夹热区 - 无悬停效果 */
+        .folder-hotspot {
+            position: absolute; cursor: pointer; z-index: 10;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+        }
+
+        /* 文件夹标题 - 始终显示 */
+        .folder-label {
+            background: rgba(255,255,255,0.92);
+            padding: 5px 14px; border-radius: 20px;
+            font-size: 13px; font-weight: 500; color: #5a4a3a;
+            white-space: nowrap;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.15);
+            font-family: 'ZCOOL KuaiLe', cursive;
+            pointer-events: none;
+        }
+
+        /* 8个文件夹位置 - 添加浮动动画 */
+        .hs1 { left: 10%; top: 22%; width: 16%; height: 16%; animation: float 4s ease-in-out infinite; }
+        .hs2 { left: 52%; top: 5%;  width: 16%; height: 13%; animation: float 4s ease-in-out infinite 0.5s; }
+        .hs3 { left: 75%; top: 24%; width: 16%; height: 16%; animation: float 4s ease-in-out infinite 1s; }
+        .hs4 { left: 5%;  top: 52%; width: 16%; height: 16%; animation: float 4s ease-in-out infinite 1.5s; }
+        .hs5 { left: 80%; top: 50%; width: 16%; height: 16%; animation: float 4s ease-in-out infinite 2s; }
+        .hs6 { left: 5%;  top: 77%; width: 18%; height: 17%; animation: float 4s ease-in-out infinite 2.5s; }
+        .hs7 { left: 76%; top: 74%; width: 18%; height: 17%; animation: float 4s ease-in-out infinite 3s; }
+        .hs8 { left: 58%; top: 90%; width: 18%; height: 10%; animation: float 4s ease-in-out infinite 3.5s; }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+
+        /* 装饰元素 - 小星星 */
+        .star {
+            position: fixed; font-size: 20px;
+            animation: twinkle 2s ease-in-out infinite;
+            pointer-events: none; z-index: 5;
+        }
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.3); }
+        }
+
+        /* 漂浮爱心 */
+        .heart {
+            position: fixed; font-size: 18px;
+            animation: floatHeart 6s ease-in-out infinite;
+            pointer-events: none; z-index: 5;
+        }
+        @keyframes floatHeart {
+            0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.6; }
+            50% { transform: translateY(-20px) rotate(10deg); opacity: 1; }
+        }
+
+        /* 闪烁光点 */
+        .sparkle {
+            position: fixed; width: 6px; height: 6px;
+            background: radial-gradient(circle, #ffd93d 0%, transparent 70%);
+            border-radius: 50%;
+            animation: sparkle 3s ease-in-out infinite;
+            pointer-events: none; z-index: 5;
+        }
+        @keyframes sparkle {
+            0%, 100% { opacity: 0; transform: scale(0); }
+            50% { opacity: 1; transform: scale(1); }
+        }
+
+        /* 云朵装饰 */
+        .cloud {
+            position: fixed; font-size: 40px;
+            animation: drift 20s linear infinite;
+            pointer-events: none; z-index: 4; opacity: 0.7;
+        }
+        @keyframes drift {
+            0% { transform: translateX(-100px); }
+            100% { transform: translateX(calc(100vw + 100px)); }
+        }
+
+        /* 文件夹标签弹跳 */
+        .folder-label {
+            background: rgba(255,255,255,0.92);
+            padding: 5px 14px; border-radius: 20px;
+            font-size: 13px; font-weight: 500; color: #5a4a3a;
+            white-space: nowrap;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.15);
+            font-family: 'ZCOOL KuaiLe', cursive;
+            pointer-events: none;
+            animation: labelBounce 3s ease-in-out infinite;
+        }
+        @keyframes labelBounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        /* 编辑按钮 */
+        .edit-btn {
+            position: fixed; bottom: 20px; right: 20px;
+            width: 50px; height: 50px; border-radius: 50%;
+            background: linear-gradient(135deg, #ffd93d, #ffb800);
+            border: none; cursor: pointer; font-size: 24px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 200; transition: transform 0.3s;
+        }
+        .edit-btn:hover { transform: scale(1.1); }
+
+        /* ====== 窗口 ====== */
+        .window {
+            position: fixed; background: rgba(255,255,255,0.98);
+            border-radius: 20px;
+            box-shadow: 0 25px 80px rgba(0,0,0,0.2);
+            overflow: hidden; display: none; z-index: 100;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.6);
+            max-height: 85vh;
+        }
+        .window.active { display: block; }
+        .window-header {
+            background: linear-gradient(135deg, #faf8f5, #f0ebe3);
+            padding: 15px 20px; display: flex;
+            justify-content: space-between; align-items: center;
+            border-bottom: 1px solid rgba(0,0,0,0.05); cursor: move;
+        }
+        .window-title {
+            font-family: 'ZCOOL KuaiLe', cursive;
+            font-size: 1.3rem; color: #5a4a3a;
+        }
+        .window-controls { display: flex; gap: 10px; }
+        .window-btn {
+            width: 14px; height: 14px; border-radius: 50%;
+            border: none; cursor: pointer; transition: transform 0.2s;
+        }
+        .window-btn:hover { transform: scale(1.3); }
+        .window-btn.minimize { background: #ffd93d; }
+        .window-btn.maximize { background: #8ce99a; }
+        .window-btn.close { background: #ffa8a8; }
+        .window-content {
+            padding: 25px; max-height: 72vh; overflow-y: auto;
+        }
+
+        /* 内容样式 */
+        .content-section { margin-bottom: 25px; position: relative; }
+        .content-title {
+            font-family: 'ZCOOL KuaiLe', cursive;
+            font-size: 1.3rem; color: #5a4a3a;
+            margin-bottom: 15px; padding-bottom: 10px;
+            border-bottom: 2px dashed #e0d5c8;
+        }
+        .content-text {
+            color: #6b5b4f; line-height: 1.8; font-size: 0.95rem;
+        }
+        .content-text a {
+            color: #2b6cb0; text-decoration: underline;
+        }
+        .timeline-item {
+            background: linear-gradient(135deg, #faf8f5, #f5f0e8);
+            padding: 20px; border-radius: 15px; margin-bottom: 15px;
+            border-left: 4px solid #ffd93d; position: relative;
+        }
+        .timeline-title {
+            font-weight: 700; color: #5a4a3a;
+            margin-bottom: 8px; font-size: 1.05rem;
+        }
+        .timeline-date {
+            font-size: 0.85rem; color: #a09080; margin-bottom: 10px;
+        }
+        .timeline-content ul { margin: 0; padding-left: 18px; }
+        .timeline-content li {
+            margin-bottom: 8px; color: #6b5b4f; line-height: 1.7;
+        }
+
+        /* 可编辑项容器 */
+        .editable-item {
+            position: relative; margin-bottom: 15px;
+        }
+        .editable-item:hover {
+            background: rgba(255,255,255,0.3); border-radius: 8px;
+        }
+
+        /* 图片/视频网格 */
+        .media-grid {
+            display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;
+        }
+        .media-item {
+            border-radius: 12px; overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s; position: relative;
+            background: #faf8f5;
+        }
+        .media-item:hover { transform: scale(1.02); }
+        .media-item img, .media-item video {
+            width: 100%; height: 180px; object-fit: cover; display: block;
+        }
+        .media-item iframe {
+            width: 100%; height: 180px; border: none;
+        }
+        .media-item .media-desc {
+            padding: 10px; font-size: 12px; color: #5a4a3a;
+            background: #fff; text-align: center;
+            min-height: 40px;
+        }
+        .media-item .media-desc[contenteditable="true"] {
+            border: 2px dashed #ffd93d; outline: none;
+        }
+
+        /* 联系信息 */
+        .contact-item {
+            display: flex; align-items: center; gap: 15px;
+            padding: 15px; background: linear-gradient(135deg, #faf8f5, #f5f0e8);
+            border-radius: 12px; margin-bottom: 12px;
+        }
+        .contact-icon {
+            width: 45px; height: 45px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; font-size: 1.3rem;
+        }
+
+        /* 技能标签 */
+        .skill-tags { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 15px; }
+        .skill-tag {
+            padding: 8px 16px;
+            background: linear-gradient(135deg, #ffd93d, #ffb800);
+            border-radius: 20px; font-size: 13px; color: #5a4a3a;
+            font-weight: 500; position: relative;
+        }
+
+        /* 编辑模式 */
+        .edit-actions {
+            position: absolute; top: 5px; right: 5px;
+            display: none; gap: 5px; z-index: 10;
+        }
+        .edit-mode .edit-actions { display: flex; }
+        .edit-actions button {
+            width: 32px; height: 32px; border-radius: 50%;
+            border: none; cursor: pointer; font-size: 14px;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+        .btn-edit { background: #74c0fc; color: white; }
+        .btn-delete { background: #ffa8a8; color: white; }
+        .btn-replace { background: #8ce99a; color: #2d5a3d; }
+        .btn-add { background: #ffd93d; color: #5a4a3a; font-size: 18px; }
+
+        .add-btn {
+            width: 100%; padding: 15px;
+            border: 2px dashed #d0c8c0; border-radius: 12px;
+            background: rgba(255,255,255,0.5); cursor: pointer;
+            font-size: 14px; color: #8b7b6b; transition: all 0.3s;
+            display: none; margin-top: 10px;
+        }
+        .edit-mode .add-btn { display: block; }
+        .add-btn:hover { border-color: #ffd93d; background: rgba(255,217,61,0.1); }
+
+        /* 上传区域 */
+        .upload-area {
+            border: 2px dashed #d0c8c0; border-radius: 12px;
+            padding: 40px 20px; text-align: center; margin: 15px 0;
+            cursor: pointer; transition: all 0.3s; display: none;
+            background: rgba(255,255,255,0.3);
+        }
+        .edit-mode .upload-area { display: block; }
+        .upload-area:hover { border-color: #ffd93d; background: rgba(255,217,61,0.05); }
+        .upload-area input { display: none; }
+
+        /* 已上传文件列表 */
+        .file-list { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 15px; }
+        .file-item {
+            display: flex; align-items: center; gap: 8px;
+            padding: 10px 14px; background: linear-gradient(135deg, #faf8f5, #f5f0e8);
+            border-radius: 10px; font-size: 13px; color: #5a4a3a;
+            position: relative;
+        }
+        .file-item .file-icon { font-size: 18px; }
+        .file-item .file-actions {
+            display: none; gap: 5px; margin-left: 8px;
+        }
+        .edit-mode .file-item .file-actions { display: flex; }
+        .file-item .file-actions button {
+            width: 22px; height: 22px; border-radius: 50%;
+            border: none; cursor: pointer; font-size: 12px;
+        }
+
+        /* 编辑面板 */
+        .edit-panel {
+            position: fixed; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            background: white; padding: 30px; border-radius: 20px;
+            box-shadow: 0 25px 80px rgba(0,0,0,0.3);
+            z-index: 300; display: none; width: 550px; max-height: 85vh; overflow-y: auto;
+        }
+        .edit-panel.active { display: block; }
+        .edit-panel h3 { font-family: 'ZCOOL KuaiLe', cursive; margin-bottom: 20px; color: #5a4a3a; }
+        .edit-panel input, .edit-panel textarea, .edit-panel select {
+            width: 100%; padding: 12px; border: 2px solid #e0d5c8;
+            border-radius: 10px; margin-bottom: 15px; font-family: inherit; font-size: 14px;
+        }
+        .edit-panel textarea { min-height: 120px; resize: vertical; }
+        .edit-panel button {
+            padding: 10px 20px; border: none; border-radius: 10px;
+            cursor: pointer; font-size: 14px; margin-right: 10px;
+        }
+        .btn-save { background: #8ce99a; color: #2d5a3d; }
+        .btn-cancel { background: #e0d5c8; color: #5a4a3a; }
+        .btn-upload { background: #74c0fc; color: white; width: 100%; margin-bottom: 15px; }
+
+        .overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.5); z-index: 250; display: none;
+        }
+        .overlay.active { display: block; }
+
+        /* 文本编辑状态 */
+        [contenteditable="true"] {
+            border: 2px dashed #ffd93d; padding: 5px; border-radius: 5px; outline: none;
+            background: rgba(255,255,255,0.8);
+        }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: #d0c8c0; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <div class="desktop" id="desktop">
+        <!-- 装饰性动画元素 - 小星星 -->
+        <div class="star" style="top: 8%; left: 5%;">✨</div>
+        <div class="star" style="top: 15%; left: 25%; animation-delay: 0.3s;">⭐</div>
+        <div class="star" style="top: 5%; left: 45%; animation-delay: 0.6s;">✨</div>
+        <div class="star" style="top: 12%; left: 65%; animation-delay: 0.9s;">⭐</div>
+        <div class="star" style="top: 6%; left: 85%; animation-delay: 1.2s;">✨</div>
+        <div class="star" style="top: 35%; left: 3%; animation-delay: 0.4s;">⭐</div>
+        <div class="star" style="top: 45%; left: 95%; animation-delay: 0.7s;">✨</div>
+        <div class="star" style="top: 65%; left: 2%; animation-delay: 1.0s;">⭐</div>
+        <div class="star" style="top: 85%; left: 92%; animation-delay: 1.3s;">✨</div>
+        <div class="star" style="top: 92%; left: 35%; animation-delay: 0.5s;">⭐</div>
+
+        <!-- 漂浮爱心 -->
+        <div class="heart" style="top: 20%; left: 8%;">💕</div>
+        <div class="heart" style="top: 40%; left: 92%; animation-delay: 1s;">💖</div>
+        <div class="heart" style="top: 70%; left: 5%; animation-delay: 2s;">💗</div>
+        <div class="heart" style="top: 55%; left: 88%; animation-delay: 3s;">💝</div>
+        <div class="heart" style="top: 30%; left: 15%; animation-delay: 4s;">💓</div>
+
+        <!-- 闪烁光点 -->
+        <div class="sparkle" style="top: 25%; left: 20%;"></div>
+        <div class="sparkle" style="top: 50%; left: 80%; animation-delay: 0.8s;"></div>
+        <div class="sparkle" style="top: 75%; left: 30%; animation-delay: 1.6s;"></div>
+        <div class="sparkle" style="top: 35%; left: 70%; animation-delay: 2.4s;"></div>
+        <div class="sparkle" style="top: 60%; left: 15%; animation-delay: 0.5s;"></div>
+        <div class="sparkle" style="top: 80%; left: 75%; animation-delay: 1.2s;"></div>
+        <div class="sparkle" style="top: 10%; left: 55%; animation-delay: 1.8s;"></div>
+        <div class="sparkle" style="top: 90%; left: 50%; animation-delay: 2.2s;"></div>
+
+        <!-- 云朵装饰 -->
+        <div class="cloud" style="top: 5%;">☁️</div>
+        <div class="cloud" style="top: 15%; animation-delay: 5s;">☁️</div>
+        <div class="cloud" style="top: 8%; animation-delay: 10s;">☁️</div>
+
+        <!-- 8个文件夹 -->
+        <div class="folder-hotspot hs1" onclick="openWindow('profile')">
+            <span class="folder-label">个人信息</span>
+        </div>
+        <div class="folder-hotspot hs2" onclick="openWindow('education')">
+            <span class="folder-label">教育背景</span>
+        </div>
+        <div class="folder-hotspot hs3" onclick="openWindow('internship')">
+            <span class="folder-label">实习经历</span>
+        </div>
+        <div class="folder-hotspot hs4" onclick="openWindow('projects')">
+            <span class="folder-label">项目经历</span>
+        </div>
+        <div class="folder-hotspot hs5" onclick="openWindow('awards')">
+            <span class="folder-label">获奖作品</span>
+        </div>
+        <div class="folder-hotspot hs6" onclick="openWindow('portfolio')">
+            <span class="folder-label">作品集</span>
+        </div>
+        <div class="folder-hotspot hs7" onclick="openWindow('skills')">
+            <span class="folder-label">技能特长</span>
+        </div>
+        <div class="folder-hotspot hs8" onclick="openWindow('contact')">
+            <span class="folder-label">联系方式</span>
+        </div>
+
+        <button class="edit-btn" onclick="toggleEditMode()" title="编辑模式">✏️</button>
+    </div>
+
+    <!-- 遮罩和编辑面板 -->
+    <div class="overlay" id="overlay" onclick="closeEditPanel()"></div>
+    <div class="edit-panel" id="editPanel">
+        <h3 id="editPanelTitle">编辑内容</h3>
+        <input type="hidden" id="editType">
+        <input type="hidden" id="editIndex">
+        <input type="hidden" id="editSection">
+        
+        <select id="editMediaType" onchange="onMediaTypeChange()">
+            <option value="text">文本内容</option>
+            <option value="image">图片</option>
+            <option value="video">视频文件</option>
+            <option value="youtube">YouTube/B站链接</option>
+            <option value="link">超链接</option>
+            <option value="pdf">PDF文档</option>
+        </select>
+        
+        <input type="text" id="editTitle" placeholder="标题">
+        <input type="text" id="editSubtitle" placeholder="副标题/时间">
+        <textarea id="editContent" placeholder="内容描述"></textarea>
+        <input type="text" id="editUrl" placeholder="链接地址（图片URL、视频链接、网页链接等）" style="display:none;">
+        
+        <div id="fileUploadSection">
+            <button class="btn-upload" onclick="document.getElementById('editFile').click()">📁 选择本地文件</button>
+            <input type="file" id="editFile" onchange="onFileSelected(this)">
+        </div>
+        
+        <button class="btn-save" onclick="saveEdit()">保存</button>
+        <button class="btn-cancel" onclick="closeEditPanel()">取消</button>
+    </div>
+
+    <!-- ========== 个人信息 ========== -->
+    <div class="window" id="window-profile" style="width:520px;">
+        <div class="window-header">
+            <span class="window-title">个人信息</span>
+            <div class="window-controls">
+                <button class="window-btn minimize" onclick="closeWindow('profile')"></button>
+                <button class="window-btn maximize" onclick="maximizeWindow('profile')"></button>
+                <button class="window-btn close" onclick="closeWindow('profile')"></button>
+            </div>
+        </div>
+        <div class="window-content" id="content-profile">
+            <div class="editable-item" data-type="profile" data-index="0">
+                <div class="edit-actions">
+                    <button class="btn-replace" onclick="replaceMedia('profile',0,'avatar')" title="更换头像">🔄</button>
+                </div>
+                <div style="text-align:center;margin-bottom:20px;">
+                    <img src="images/img_1_1.jpeg" alt="金蕊" id="profile-avatar" style="width:140px;height:140px;border-radius:50%;object-fit:cover;box-shadow:0 4px 20px rgba(0,0,0,0.15);">
+                </div>
+            </div>
+            
+            <div class="editable-item" data-type="profile" data-index="1">
+                <div class="edit-actions">
+                    <button class="btn-edit" onclick="editText('profile',1)" title="编辑">✏️</button>
+                </div>
+                <h3 class="content-title" id="profile-name">金蕊</h3>
+                <p class="content-text" id="profile-intro">
+                    内江师范学院新闻学专业本科（2023.9-2027.6），27届大三学生。<br><br>
+                    深耕品牌营销与数字化传播相关领域，具备内容创作、活动策划、数据运营的复合知识基础。<br><br>
+                    <strong>求职意向：</strong>品牌营销/市场实习生（品牌数字化方向）<br>
+                    <strong>意向城市：</strong>上海<br>
+                    <strong>求职类型：</strong>实习（可保证每周5天全勤，实习6个月以上）
+                </p>
+            </div>
+
+            <div class="content-section">
+                <h3 class="content-title">个人照片</h3>
+                <div class="media-grid" id="profile-photos">
+                    <div class="media-item editable-item" data-type="media" data-index="0">
+                        <div class="edit-actions">
+                            <button class="btn-replace" onclick="replaceMedia('profile-photos',0,'image')" title="替换">🔄</button>
+                            <button class="btn-delete" onclick="deleteMedia(this)" title="删除">🗑️</button>
+                        </div>
+                        <img src="images/img_2_4.jpeg" alt="职业形象照">
+                        <div class="media-desc" contenteditable="false">本地生活平台经营数据</div>
+                    </div>
+                    <div class="media-item editable-item" data-type="media" data-index="2">
+                        <div class="edit-actions">
+                            <button class="btn-replace" onclick="replaceMedia('portfolio-data',2,'image')" title="替换">🔄</button>
+                            <button class="btn-delete" onclick="deleteMedia(this)" title="删除">🗑️</button>
+                        </div>
+                        <img src="images/img_2_19.jpeg" alt="团购策略">
+                        <div class="media-desc" contenteditable="false">多门店团购促销策略</div>
+                    </div>
+                    <div class="media-item editable-item" data-type="media" data-index="3">
+                        <div class="edit-actions">
+                            <button class="btn-replace" onclick="replaceMedia('portfolio-data',3,'image')" title="替换">🔄</button>
+                            <button class="btn-delete" onclick="deleteMedia(this)" title="删除">🗑️</button>
+                        </div>
+                        <img src="images/img_2_20.jpeg" alt="直播数据">
+                        <div class="media-desc" contenteditable="false">抖音直播数据后台</div>
+                    </div>
+                    <div class="media-item editable-item" data-type="media" data-index="4">
+                        <div class="edit-actions">
+                            <button class="btn-replace" onclick="replaceMedia('portfolio-data',4,'image')" title="替换">🔄</button>
+                            <button class="btn-delete" onclick="deleteMedia(this)" title="删除">🗑️</button>
+                        </div>
+                        <img src="images/img_2_25.jpeg" alt="拼团运营">
+                        <div class="media-desc" contenteditable="false">拼团小程序 · 社交电商</div>
+                    </div>
+                    <div class="media-item editable-item" data-type="media" data-index="5">
+                        <div class="edit-actions">
+                            <button class="btn-replace" onclick="replaceMedia('portfolio-data',5,'image')" title="替换">🔄</button>
+                            <button class="btn-delete" onclick="deleteMedia(this)" title="删除">🗑️</button>
+                        </div>
+                        <img src="images/img_2_29.jpeg" alt="数据监测">
+                        <div class="media-desc" contenteditable="false">B站播放量监测表</div>
+                    </div>
+                </div>
+                <div class="upload-area" onclick="openAddMedia('portfolio-data')">
+                    <div style="font-size:30px;margin-bottom:10px;">➕</div>
+                    <div>添加运营数据</div>
+                </div>
+            </div>
+
+            <button class="add-btn" onclick="addSection('portfolio')">+ 添加新分类</button>
+        </div>
+    </div>
+
+    <!-- ========== 技能特长 ========== -->
+    <div class="window" id="window-skills" style="width:550px;">
+        <div class="window-header">
+            <span class="window-title">技能特长</span>
+            <div class="window-controls">
+                <button class="window-btn minimize" onclick="closeWindow('skills')"></button>
+                <button class="window-btn maximize" onclick="maximizeWindow('skills')"></button>
+                <button class="window-btn close" onclick="closeWindow('skills')"></button>
+            </div>
+        </div>
+        <div class="window-content">
+            <div class="editable-item" data-type="skill" data-index="0">
+                <div class="edit-actions">
+                    <button class="btn-edit" onclick="editText('skill',0)" title="编辑">✏️</button>
+                    <button class="btn-delete" onclick="deleteItem(this)" title="删除">🗑️</button>
+                </div>
+                <h3 class="content-title">数据分析</h3>
+                <p class="content-text">熟练使用Excel（VLOOKUP、数据透视表、动态看板、数据清洗：去重/缺失值/标准化），可独立搭建活动效果追踪表并输出专业数据简报</p>
+            </div>
+            <div class="editable-item" data-type="skill" data-index="1">
+                <div class="edit-actions">
+                    <button class="btn-edit" onclick="editText('skill',1)" title="编辑">✏️</button>
+                    <button class="btn-delete" onclick="deleteItem(this)" title="删除">🗑️</button>
+                </div>
+                <h3 class="content-title">AI工具应用</h3>
+                <p class="content-text">熟练使用Midjourney/StableDiffusion进行AI生图，Runway/Pika生成短视频；具备vibecoding基础能力，可快速搭建品牌落地页、H5互动工具、数据看板原型</p>
+            </div>
+            <div class="editable-item" data-type="skill" data-index="2">
+                <div class="edit-actions">
+                    <button class="btn-edit" onclick="editText('skill',2)" title="编辑">✏️</button>
+                    <button class="btn-delete" onclick="deleteItem(this)" title="删除">🗑️</button>
+                </div>
+                <h3 class="content-title">设计工具</h3>
+                <p class="content-text">熟练使用Photoshop、Canva、InDesign，可独立完成海报、活动页、宣传物料的设计制作</p>
+            </div>
+            <div class="editable-item" data-type="skill" data-index="3">
+                <div class="edit-actions">
+                    <button class="btn-edit" onclick="editText('skill',3)" title="编辑">✏️</button>
+                    <button class="btn-delete" onclick="deleteItem(this)" title="删除">🗑️</button>
+                </div>
+                <h3 class="content-title">内容创作</h3>
+                <p class="content-text">具备全流程视频策划、拍摄、剪辑能力，擅长品牌文案、社媒内容撰写，曾获大广赛视频类省级二等奖</p>
+            </div>
+            <div class="skill-tags" id="skillTags">
+                <span class="skill-tag">Excel数据分析</span>
+                <span class="skill-tag">VLOOKUP</span>
+                <span class="skill-tag">数据透视表</span>
+                <span class="skill-tag">Midjourney</span>
+                <span class="skill-tag">StableDiffusion</span>
+                <span class="skill-tag">Runway</span>
+                <span class="skill-tag">Pika</span>
+                <span class="skill-tag">VibeCoding</span>
+                <span class="skill-tag">H5制作</span>
+                <span class="skill-tag">Photoshop</span>
+                <span class="skill-tag">Canva</span>
+                <span class="skill-tag">InDesign</span>
+                <span class="skill-tag">视频剪辑</span>
+                <span class="skill-tag">品牌文案</span>
+                <span class="skill-tag">社媒运营</span>
+            </div>
+            <button class="add-btn" onclick="addSkill()">+ 添加技能标签</button>
+        </div>
+    </div>
+
+    <!-- ========== 联系方式 ========== -->
+    <div class="window" id="window-contact" style="width:400px;">
+        <div class="window-header">
+            <span class="window-title">联系方式</span>
+            <div class="window-controls">
+                <button class="window-btn minimize" onclick="closeWindow('contact')"></button>
+                <button class="window-btn maximize" onclick="maximizeWindow('contact')"></button>
+                <button class="window-btn close" onclick="closeWindow('contact')"></button>
+            </div>
+        </div>
+        <div class="window-content">
+            <div class="contact-item editable-item" data-type="contact" data-index="0">
+                <div class="edit-actions" style="position:static;margin-left:auto;">
+                    <button class="btn-edit" onclick="editContact(0)" title="编辑">✏️</button>
+                </div>
+                <div class="contact-icon" style="background:#ffd93d;">📱</div>
+                <div>
+                    <div style="font-weight:700;color:#5a4a3a;">电话</div>
+                    <div style="color:#8b7b6b;font-size:0.9rem;">188-8261-4995</div>
+                </div>
+            </div>
+            <div class="contact-item editable-item" data-type="contact" data-index="1">
+                <div class="edit-actions" style="position:static;margin-left:auto;">
+                    <button class="btn-edit" onclick="editContact(1)" title="编辑">✏️</button>
+                </div>
+                <div class="contact-icon" style="background:#74c0fc;">📧</div>
+                <div>
+                    <div style="font-weight:700;color:#5a4a3a;">邮箱</div>
+                    <div style="color:#8b7b6b;font-size:0.9rem;">18882614995@163.com</div>
+                </div>
+            </div>
+            <div class="contact-item editable-item" data-type="contact" data-index="2">
+                <div class="edit-actions" style="position:static;margin-left:auto;">
+                    <button class="btn-edit" onclick="editContact(2)" title="编辑">✏️</button>
+                </div>
+                <div class="contact-icon" style="background:#8ce99a;">🎓</div>
+                <div>
+                    <div style="font-weight:700;color:#5a4a3a;">学校</div>
+                    <div style="color:#8b7b6b;font-size:0.9rem;">内江师范学院 · 新闻学</div>
+                </div>
+            </div>
+            <div class="contact-item editable-item" data-type="contact" data-index="3">
+                <div class="edit-actions" style="position:static;margin-left:auto;">
+                    <button class="btn-edit" onclick="editContact(3)" title="编辑">✏️</button>
+                </div>
+                <div class="contact-icon" style="background:#ffa8cc;">📍</div>
+                <div>
+                    <div style="font-weight:700;color:#5a4a3a;">意向城市</div>
+                    <div style="color:#8b7b6b;font-size:0.9rem;">上海</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let isEditMode = false;
+        let audioCtx = null;
+        try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
+
+        function playClick() {
+            try {
+                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+                o.connect(g); g.connect(audioCtx.destination);
+                o.frequency.value = 800; o.type = 'sine';
+                g.gain.setValueAtTime(0.08, audioCtx.currentTime);
+                g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
+                o.start(audioCtx.currentTime); o.stop(audioCtx.currentTime + 0.1);
+            } catch(e) {}
+        }
+
+        function toggleEditMode() {
+            isEditMode = !isEditMode;
+            document.body.classList.toggle('edit-mode', isEditMode);
+            document.querySelector('.edit-btn').textContent = isEditMode ? '✅' : '✏️';
+            document.querySelector('.edit-btn').title = isEditMode ? '完成编辑' : '编辑模式';
+        }
+
+        let zIdx = 100, dragging = false, dragWin = null, offX = 0, offY = 0;
+
+        function openWindow(id) {
+            try { playClick(); } catch(e) {}
+            const w = document.getElementById('window-' + id);
+            if (!w) return;
+            w.classList.add('active');
+            w.style.zIndex = ++zIdx;
+            w.style.left = (window.innerWidth - w.offsetWidth) / 2 + 'px';
+            w.style.top = (window.innerHeight - w.offsetHeight) / 2 + 'px';
+        }
+
+        function closeWindow(id) {
+            try { playClick(); } catch(e) {}
+            const w = document.getElementById('window-' + id);
+            if (w) w.classList.remove('active');
+        }
+
+        function maximizeWindow(id) {
+            try { playClick(); } catch(e) {}
+            const w = document.getElementById('window-' + id);
+            if (!w) return;
+            if (w.style.width === '90vw') {
+                w.style.width = w.dataset.ow || '500px';
+                w.style.height = 'auto'; w.style.top = '100px'; w.style.left = '100px';
+            } else {
+                w.dataset.ow = w.style.width;
+                w.style.width = '90vw'; w.style.height = '80vh';
+                w.style.top = '10vh'; w.style.left = '5vw';
+            }
+        }
+
+        document.querySelectorAll('.window-header').forEach(function(h) {
+            h.addEventListener('mousedown', function(e) {
+                dragging = true; dragWin = h.parentElement;
+                dragWin.style.zIndex = ++zIdx;
+                const r = dragWin.getBoundingClientRect();
+                offX = e.clientX - r.left; offY = e.clientY - r.top;
+            });
+        });
+        document.addEventListener('mousemove', function(e) {
+            if (dragging && dragWin) {
+                dragWin.style.left = (e.clientX - offX) + 'px';
+                dragWin.style.top = (e.clientY - offY) + 'px';
+            }
+        });
+        document.addEventListener('mouseup', function() { dragging = false; dragWin = null; });
+
+        // 编辑功能
+        let currentEditTarget = null;
+
+        function onMediaTypeChange() {
+            const type = document.getElementById('editMediaType').value;
+            const urlInput = document.getElementById('editUrl');
+            const fileSection = document.getElementById('fileUploadSection');
+            if (type === 'link' || type === 'youtube') {
+                urlInput.style.display = 'block';
+                fileSection.style.display = 'none';
+            } else if (type === 'text') {
+                urlInput.style.display = 'none';
+                fileSection.style.display = 'none';
+            } else {
+                urlInput.style.display = 'none';
+                fileSection.style.display = 'block';
+            }
+        }
+
+        function openEditPanel(title, type, section) {
+            document.getElementById('editPanelTitle').textContent = title;
+            document.getElementById('editType').value = type;
+            document.getElementById('editSection').value = section || '';
+            document.getElementById('overlay').classList.add('active');
+            document.getElementById('editPanel').classList.add('active');
+            onMediaTypeChange();
+        }
+
+        function closeEditPanel() {
+            document.getElementById('overlay').classList.remove('active');
+            document.getElementById('editPanel').classList.remove('active');
+            document.getElementById('editFile').value = '';
+            currentEditTarget = null;
+        }
+
+        function onFileSelected(input) {
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                alert('已选择文件: ' + file.name + '\n点击保存后将添加到作品集中');
+            }
+        }
+
+        function saveEdit() {
+            const type = document.getElementById('editMediaType').value;
+            const title = document.getElementById('editTitle').value;
+            const subtitle = document.getElementById('editSubtitle').value;
+            const content = document.getElementById('editContent').value;
+            const url = document.getElementById('editUrl').value;
+            const file = document.getElementById('editFile').files[0];
+
+            if (currentEditTarget) {
+                // 替换现有内容
+                if (type === 'image' && (url || file)) {
+                    const img = currentEditTarget.querySelector('img');
+                    if (img) img.src = url || URL.createObjectURL(file);
+                } else if (type === 'video' && (url || file)) {
+                    const container = currentEditTarget.querySelector('img, video, iframe')?.parentElement || currentEditTarget;
+                    if (url.includes('youtube') || url.includes('bilibili')) {
+                        container.innerHTML = '<iframe src="' + url + '" frameborder="0" allowfullscreen></iframe><div class="media-desc" contenteditable="false">' + title + '</div>';
+                    } else {
+                        container.innerHTML = '<video controls><source src="' + (url || URL.createObjectURL(file)) + '"></video><div class="media-desc" contenteditable="false">' + title + '</div>';
+                    }
+                }
+                const desc = currentEditTarget.querySelector('.media-desc');
+                if (desc) desc.textContent = title;
+            } else {
+                // 添加新内容
+                alert('添加新内容功能:\n类型: ' + type + '\n标题: ' + title);
+            }
+            closeEditPanel();
+        }
+
+        function replaceMedia(sectionId, index, mediaType) {
+            const section = document.getElementById(sectionId);
+            const items = section.querySelectorAll('.media-item');
+            if (items[index]) {
+                currentEditTarget = items[index];
+                openEditPanel('替换 ' + mediaType, mediaType, sectionId);
+            }
+        }
+
+        function openAddMedia(sectionId) {
+            currentEditTarget = null;
+            openEditPanel('添加新内容', 'image', sectionId);
+        }
+
+        function deleteMedia(btn) {
+            if (!confirm('确定要删除这个作品吗？')) return;
+            btn.closest('.media-item').remove();
+        }
+
+        function deleteItem(btn) {
+            if (!confirm('确定要删除这条记录吗？')) return;
+            btn.closest('.editable-item, .timeline-item').remove();
+        }
+
+        function editTimeline(type, index) {
+            const item = document.querySelector('[data-type="' + type + '"][data-index="' + index + '"]');
+            if (!item) return;
+            document.getElementById('editMediaType').value = 'text';
+            onMediaTypeChange();
+            document.getElementById('editTitle').value = item.querySelector('.timeline-title')?.textContent || '';
+            document.getElementById('editSubtitle').value = item.querySelector('.timeline-date')?.textContent || '';
+            const lis = item.querySelectorAll('.timeline-content li');
+            document.getElementById('editContent').value = Array.from(lis).map(li => li.textContent).join('\n');
+            openEditPanel('编辑经历', 'text', type);
+            currentEditTarget = item;
+        }
+
+        function editText(type, index) {
+            const item = document.querySelector('[data-type="' + type + '"][data-index="' + index + '"]');
+            if (!item) return;
+            document.getElementById('editMediaType').value = 'text';
+            onMediaTypeChange();
+            document.getElementById('editTitle').value = item.querySelector('.content-title')?.textContent || '';
+            document.getElementById('editContent').value = item.querySelector('.content-text')?.innerHTML.replace(/<br>/g, '\n') || '';
+            openEditPanel('编辑内容', 'text', type);
+            currentEditTarget = item;
+        }
+
+        function editContact(index) {
+            alert('编辑联系方式 ' + index);
+        }
+
+        function addTimeline(type) {
+            document.getElementById('editMediaType').value = 'text';
+            onMediaTypeChange();
+            document.getElementById('editTitle').value = '';
+            document.getElementById('editSubtitle').value = '';
+            document.getElementById('editContent').value = '';
+            openEditPanel('添加新经历', 'text', type);
+            currentEditTarget = null;
+        }
+
+        function addSection(type) {
+            const name = prompt('请输入新分类名称：');
+            if (name) alert('将添加新分类: ' + name);
+        }
+
+        function addSkill() {
+            const s = prompt('请输入技能名称：');
+            if (!s) return;
+            const tag = document.createElement('span');
+            tag.className = 'skill-tag';
+            tag.textContent = s;
+            document.getElementById('skillTags').appendChild(tag);
+        }
+    </script>
+</body>
+</html>false">职业形象照</div>
+                    </div>
+                    <div class="media-item editable-item" data-type="media" data-index="1">
+                        <div class="edit-actions">
+                            <button class="btn-replace" onclick="replaceMedia('profile-photos',1,'image')" title="替换">🔄</button>
+                            <button class="btn-delete" onclick="deleteMedia(this)" title="删除">🗑️</button>
+                        </div>
+                        <img src="images/img_2_2.jpeg" alt="滑雪摄影">
+                        <div class="media-desc" contenteditable="false">滑雪场摄影作品</div>
+                    </div>
+                    <div class="media-item editable-item" data-type="media" data-index="2">
+                        <div class="edit-actions">
+                            <button class="btn-replace" onclick="replaceMedia('profile-photos',2,'image')" title="替换">🔄</button>
+                            <button class="btn-delete" onclick="deleteMedia(this)" title="删除">🗑️</button>
+                        </div>
+                        <img src="images/img_2_3.jpeg" alt="户外探险">
+                        <div class="media-desc" contenteditable="false">户外探险摄影</div>
+                    </div>
+                </div>
+                <div class="upload-area" onclick="openAddMedia('profile-photos')">
+                    <div style="font-size:30px;margin-bottom:10px;">➕</div>
+                    <div>添加图片/视频</div>
+                </div>
+            </div>
+
+            <div class="editable-item" data-type="profile" data-index="2">
+                <div class="edit-actions">
+                    <button class="btn-edit" onclick="editText('profile',2)" title="编辑">✏️</button>
+                </div>
+                <h3 class="content-title">个人特质</h3>
+                <p class="content-text" id="profile-traits">
+                    • 细心严谨、责任心强，可高质高效跟进多线程任务，主动探索问题解决方案，过往任务交付及时率100%<br>
+                    • 对品牌营销、活动策划、用户增长有强烈兴趣，具备较强的沟通与跨部门协调能力<br>
+                    • 专业成绩排名前15%，主修广告策划与创意、新媒体概论、传播学理论、媒介经营与管理
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== 教育背景 ========== -->
+    <div class="window" id="window-education" style="width:500px;">
+        <div class="window-header">
+            <span class="window-title">教育背景</span>
+            <div class="window-controls">
+                <button class="window-btn minimize" onclick="closeWindow('education')"></button>
+                <button class="window-btn maximize" onclick="maximizeWindow('education')"></button>
+                <button class="window-btn close" onclick="closeWindow('education')"></button>
+            </div>
+        </div>
+        <div class="window-content">
+            <div class="timeline-item editable-item" data-type="education" data-index="0">
+                <div class="edit-actions">
+                    <button class="btn-edit" onclick="editTimeline('education',0)" title="编辑">✏️</button>
+                    <button class="btn-delete" onclick="deleteItem(this)" title="删除">🗑️</button>
+                </div>
+                <div class="timeline-title">内江师范学院 · 新闻学 · 本科</div>
+                <div class="timeline-date">2023.9 - 2027.6（27届大三）</div>
+                <div class="timeline-content">
+                    <ul>
+                        <li>主修课程：广告策划与创意、新媒体概论、传播学理论、媒介经营与管理</li>
+                        <li>专业成绩排名前15%</li>
+                        <li>深耕品牌营销与数字化传播相关领域，具备内容创作、活动策划、数据运营的复合知识基础</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="content-section">
+                <h3 class="content-title">校园实践环境</h3>
+                <div class="media-grid" id="edu-media">
+                    <div class="media-item editable-item" data-type="media" data-index="0">
+                        <div class="edit-actions">
+                            <button class="btn-replace" onclick="replaceMedia('edu-media',0,'image')" title="替换">🔄</button>
+                            <button class="btn-delete" onclick="deleteMedia(this)" title="删除">🗑️</button>
+                        </div>
+                        <img src="images/img_2_23.jpeg" alt="校园电视台导播室">
+                        <div class="media-desc" contenteditable="false">校园电视台导播控制室</div>
+                    </div>
+                </div>
+                <div class="upload-area" onclick="openAddMedia('edu-media')">
+                    <div style="font-size:30px;margin-bottom:10px;">➕</div>
+                    <div>添加图片/视频</div>
+                </div>
+            </div>
+
+            <button class="add-btn" onclick="addTimeline('education')">+ 添加教育经历</button>
+        </div>
+    </div>
+
+    <!-- ========== 实习经历 ========== -->
+    <div class="window" id="window-internship" style="width:650px;">
+        <div class="window-header">
+            <span class="window-title">实习经历</span>
+            <div class="window-controls">
+                <button class="window-btn minimize" onclick="closeWindow('internship')"></button>
+                <button class="window-btn maximize" onclick="maximizeWindow('internship')"></button>
+                <button class="window-btn close" onclick="closeWindow('internship')"></button>
+            </div>
+        </div>
+        <div class="window-content">
+            <div class="timeline-item editable-item" data-type="internship" data-index="0">
+                <div class="edit-actions">
+                    <button class="btn-edit" onclick="editTimeline('internship',0)" title="编辑">✏️</button>
+                    <button class="btn-delete" onclick="deleteItem(this)" title="删除">🗑️</button>
+                </div>
+                <div class="timeline-title">沈阳焯牛餐饮服务有限公司（连锁门店）· 品牌营销实习生</div>
+                <div class="timeline-date">2025.12 - 2026.3</div>
+                <div class="timeline-content">
+                    <ul>
+                        <li>协助跟进新品尝鲜、新年礼盒、情人节优惠、开工优惠4次品牌推广活动，负责资源管理与进度追踪，协调6个城市36家门店同步落地，保障物料、内容、门店三方100%按时交付</li>
+                        <li>独立完成小红书、抖音社媒内容从选题、文案、素材制作到发布的全流程，累计发布内容25篇，平均互动率较接手前提升约15%，单篇内容最高点赞120+</li>
+                        <li>用Excel搭建内容效果追踪表，涵盖曝光、互动率、粉丝增长维度，运用VLOOKUP和数据透视表完成数据分析，每周输出数据简报，根据结论优化发布节奏与选题方向，粉丝周增长效率提升12%</li>
+                        <li>使用Photoshop、Canva、InDesign制作品牌宣传物料，获部门主管认可，全量用于线上社群传播及线下门店展示</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="content-section">
+                <h3 class="content-title">品牌宣传海报设计</h3>
+                <div class="media-grid" id="internship-posters">
+                    <div class="media-item editable-item" data-type="media" data-index="0">
+                        <div class="edit-actions">
+                            <button class="btn-replace" onclick="replaceMedia('internship-posters',0,'image')" title="替换">🔄</button>
+                            <button class="btn-delete" onclick="deleteMedia(this)" title="删除">🗑️</button>
+                        </div>
+                        <img src="images/img_2_13.jpeg" alt="焯牛品牌形象海报">
+                        <div class="media-desc" contenteditable="false">焯牛品牌形象海报 · "鲜"概念</div>
+                    </div>
+                    <div class="media-item editable-item" data-type="media" data-index="1">
+                        <div class="edit-actions">
+                            <button class="btn-replace" onclick="replaceMedia('internship-posters',1,'image')" title="替换">🔄</button>
+                            <button class="btn-delete" onclick="deleteMedia(this)" title="删除">🗑️</button>
+                        </div>
+                        <img src="images/img_2_14.jpeg" alt="开工福利海报">
+                        <div class="media-desc" contenteditable="false">开工福利海报 · 扫码领吊龙券</div>
+                    </div>
+                    <div class="media-item editable-item" data-type="media" data-index="2">
+                        <div class="edit-actions">
+                            <button class="btn-replace" onclick="replaceMedia('internship-posters',2,'image')" title="替换">🔄</button>
+                            <button class="btn-delete" onclick="deleteMedia(this)" title="删除">🗑️</button>
+                        </div>
+                        <img src="images/img_2_15.jpeg" alt="新年礼盒海报">
+                        <div class="media-desc" contenteditable="false">新年礼盒产品广告 · 售价208元</div>
+                    </div>
+                    <div class="media-item editable-item" data-type="media" data-index="3">
+                        <div class="edit-actions">
+                            <button class="btn-replace" onclick="replaceMedia('internship-posters',3,'image')" title="替换">🔄</button>
+                            <button class="btn-delete" onclick="deleteMedia(this)" title="删除">🗑️</button>
+                        </div>
+                        <img src="images/img_2_16.jpeg" alt="情人节海报">
+                        <div class="media-desc" contenteditable="false">情人节主题海报 · 精品吊龙</div>
+                    </div>
+                </div>
+                <div class="upload-area" onclick="openAddMedia('internship-posters')">
+                    <div style="font-size:30px;margin-bottom:10px;">➕</div>
+                    <div>添加图片/视频/PDF</div>
+                </div>
+            </div>
+
+            <div class="content-section">
+                <h3 class="content-title">社媒运营成果</h3>
+                <div class="media-grid" id="internship-data">
+                    <div class="media-item editable-item" data-type="media" data-index="0">
+                        <div class="edit-actions">
+                            <button class="btn-replace" onclick="replaceMedia('internship-data',0,'image')" title="替换">🔄</button>
+                            <button class="btn-delete" onclick="deleteMedia(this)" title="删除">🗑️</button>
+                        </div>
+                        <img src="images/img_2_17.jpeg" alt="抖音商家主页">
+                        <div class="media-desc" contenteditable="false">抖音企业号 · 264条作品 · 36家门店</div>
+                    </div>
+                    <div class="media-item editable-item" data-type="media" data-index="1">
+                        <div class="edit-actions">
+                            <button class="btn-replace" onclick="replaceMedia('internship-data',1,'image')" title="替换">🔄</button>
+                            <button class="btn-delete" onclick="deleteMedia(this)" title="删除">🗑️</button>
+                        </div>
+                        <img src="images/img_2_18.jpeg" alt="经营数据">
+                        <div class="media-desc" contenteditable="false">本地生活平台 · 核销/成交金额数据</div>
+                    </div>
+                    <div class="media-item editable-item" data-type="media" data-index="2">
+                        <div class="edit-actions">
+                            <button class="btn-replace" onclick="replaceMedia('internship-data',2,'image')" title="替换">🔄</button>
+                            <button class="btn-delete" onclick="deleteMedia(this)" title="删除">🗑️</button>
+                        </div>
+                        <img src="images/img_2_19.jpeg" alt="团购优惠券">
+                        <div class="media-desc" contenteditable="false">多门店多SKU促销策略展示</div>
+                    </div>
+                    <div class="media-item editable-item" data-type="media" data-index="3">
+                        <div class="edit-actions">
+                            <button class="btn-replace" onclick="replaceMedia('internship-data',3,'image')" title="替换">🔄</button>
+                            <button class="btn-delete" onclick="deleteMedia(this)" title="删除">🗑️</button>
+                        </div>
+                        <img src="images/img_2_20.jpeg" alt="直播数据">
+                        <div class="media-desc" contenteditable="false">抖音直播数据后台 · 曝光/互动/转化</div>
+                    </div>
+                </div>
+                <div class="upload-area" onclick="openAddMedia('internship-data')">
+                    <div style="font-size:30px;margin-bottom:10px;">➕</div>
+                    <div>添加图片/视频/PDF</div>
+                </div>
+            </div>
+
+            <button class="add-btn" onclick="addTimeline('internship')">+ 添加实习经历</button>
+        </div>
+    </div>
+
+    <!-- ========== 项目经历 ========== -->
+    <div class="window" id="window-projects" style="width:650px;">
+        <div class="window-header">
+            <span class="window-title">项目经历</span>
+            <div class="window-controls">
+                <button class="window-btn minimize" onclick="closeWindow('projects')"></button>
+                <button class="window-btn maximize" onclick="maximizeWindow('projects')"></button>
+                <button class="window-btn close" onclick="closeWindow('projects')"></button>
+            </div>
+        </div>
+        <div class="window-content">
+            <!-- 赤尾品牌策划 -->
+            <div class="timeline-item editable-item" data-type="project" data-index="0">
+                <div class="edit-actions">
+                    <button class="btn-edit" onclick="editTimeline('project',0)" title="编辑">✏️</button>
+                    <button class="btn-delete" onclick="deleteItem(this)" title="删除">🗑️</button>
+                </div>
+                <div class="timeline-title">赤尾品牌全案营销策划 · 主创成员</div>
+                <div class="timeline-date">2024.3 - 2024.8</div>
+                <div class="timeline-content">
+                    <ul>
+                        <li>独立完成避孕套品牌"赤尾"全案营销策划，覆盖PEST宏观环境分析、SWOT竞争格局梳理、消费者洞察、创意策略制定、活动策划、媒介排期及450万预算分配全流程</li>
+                        <li>提出"超滑科技"核心创意概念，设计"滑学实验室"预热-爆发-收尾三阶段整合营销活动，联动抖音、B站、小红书及线下快闪店形成传播矩阵，预计可覆盖目标人群1200万+</li>
+                        <li>作品已提交全国大学生广告艺术大赛，掌握完整品牌营销全流程方法论</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="media-grid" style="margin-bottom:20px;" id="project-chiwei">
+                <div class="media-item editable-item" data-type="media" data-index="0">
+                    <div class="edit-actions">
+                        <button class="btn-replace" onclick="replaceMedia('project-chiwei',0,'image')" title="替换">🔄</button>
+                        <button class="btn-delete" onclick="deleteMedia(this)" title="删除">🗑️</button>
+                    </div>
+                    <img src="images/img_2_11.jpeg" alt="赤尾品牌策划案">
+                    <div class="media-desc" contenteditable="false">赤尾品牌策划案 · PEST/SWOT/消费者分析</div>
+                </div>
+            </div>
+
+            <!-- B站内容运营 -->
+            <div class="timeline-item editable-item" data-type="project" data-index="1">
+                <div class="edit-actions">
+                    <button class="btn-edit" onclick="editTimeline('project',1)" title="编辑">✏️</button>
+                    <button class="btn-delete" onclick="deleteItem(this)" title="删除">🗑️</button>
+                </div>
+                <div class="timeline-title">B站音乐内容运营（饭圈组织）· 数据分析与推广负责人</div>
+                <div class="timeline-date">2025.5 - 2026.2</div>
+                <div class="timeline-content">
+                    <ul>
+                        <li>用Excel搭建内容数据追踪表，覆盖完播率、互动数据、播放量走势等核心维度，通过数据分析指导内容筛选与推广策略制定，内容命中率提升28%</li>
+                        <li>管理200人内容助推小组，统筹账号运营与流量推广节奏，累计推动11支视频达成百万播放，其中2支视频播放量突破200万</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="media-grid" style="margin-bottom:20px;" id="project-bilibili">
+                <div class="media-item editable-item" data-type="media" data-index="0">
+                    <div class="edit-actions">
+                        <button class="btn-replace" onclick="replaceMedia('project-bilibili',0,'image')" title="替换">🔄</button>
+                        <button class="btn-delete" onclick="deleteMedia(this)" title="删除">🗑️</button>
+                    </div>
+                    <img src="images/img_2_29.jpeg" alt="B站播放量监测表">
+                    <div class="media-desc" contenteditable="false">B站视频播放量日常监测表</div>
+                </div>
+                <div class="media-item editable-item" data-type="media" data-index="1">
+                    <div class="edit-actions">
+                        <button class="btn-replace" onclick="replaceMedia('project-bilibili',1,'image')" title="替换">🔄</button>
+                        <button class="btn-delete" onclick="deleteMedia(this)" title="删除">🗑️</button>
+                    </div>
+                    <img src="images/img_2_27.jpeg" alt="B站刷播任务">
+                    <div class="media-desc" contenteditable="false">B站刷播数据任务通知 · KPI指标</div>
+                </div>
+                <div class="media-item editable-item" data-type="media" data-index="2">
+                    <div class="edit-actions">
+                        <button class="btn-replace" onclick="replaceMedia('project-bilibili',2,'image')" title="替换">🔄</button>
+                        <button class="btn-delete" onclick="deleteMedia(this)" title="删除">🗑️</button>
+                    </div>
+                    <img src="images/img_2_28.jpeg" alt="B站刷播列表">
+                    <div class="media-desc" contenteditable="false">B站刷播列表投票公告</div>
+                </div>
+            </div>
+
+            <!-- 电商私域 -->
+            <div class="timeline-item editable-item" data-type="project" data-index="2">
+                <div class="edit-actions">
+                    <button class="btn-edit" onclick="editTimeline('project',2)" title="编辑">✏️</button>
+                    <button class="btn-delete" onclick="deleteItem(this)" title="删除">🗑️</button>
+                </div>
+                <div class="timeline-title">电商私域社群运营项目 · 项目负责人</div>
+                <div class="timeline-date">2024.1 - 2025.3</div>
+                <div class="timeline-content">
+                    <ul>
+                        <li>从0搭建200人核心用户社群，采用分层运营策略匹配用户需求，用Excel搭建用户转化与复购数据追踪表，定期输出运营优化方案</li>
+                        <li>社群活跃用户转化率达65.3%，社群用户月复购率25.6%，显著高于店铺整体平均水平</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="media-grid" style="margin-bottom:20px;" id="project-ecommerce">
+                <div class="media-item editable-item" data-type="media" data-index="0">
+                    <div class="edit-actions">
+                        <button class="btn-replace" onclick="replaceMedia('project-ecommerce',0,'image')" title="替换">🔄</button>
+                        <button class="btn-delete" onclick="deleteMedia(this)" title="删除">🗑️</button>
+                    </div>
+                    <img src="images/img_2_25.jpeg" alt="拼团小程序">
+                    <div class="media-desc" contenteditable="false">拼团小程序 · 文创周边团购</div>
+                </div>
+                <div class="media-item editable-item" data-type="media" data-index="1">
+                    <div class="edit-actions">
+                        <button class="btn-replace" onclick="replaceMedia('project-ecommerce',1,'image')" title="替换">🔄</button>
+                        <button class="btn-delete" onclick="deleteMedia(this)" title="删除">🗑️</button>
+                    </div>
+                    <img src="images/img_2_26.jpeg" alt="订单交易记录">
+                    <div class="media-desc" contenteditable="false">订单交易记录表 · 财务数据</div>
+                </div>
+            </div>
+
+            <!-- 学院活动 -->
+            <div class="timeline-item editable-item" data-type="project" data-index="3">
+                <div class="edit-actions">
+                    <button class="btn-edit" onclick="editTimeline('project',3)" title="编辑">✏️</button>
+                    <button class="btn-delete" onclick="deleteItem(this)" title="删除">🗑️</button>
+                </div>
+                <div class="timeline-title">学院大型活动策划与执行 · 全流程负责人</div>
+                <div class="timeline-date">2023.9 - 2025.12</div>
+                <div class="timeline-content">
+                    <ul>
+                        <li>主导新生欢迎会（线下到场820人+线上180人）和记者节实践周（5场活动累计覆盖1070人），从前期策划、落地执行到后期复盘全程跟进</li>
+                        <li>活动后输出完整复盘报告，沉淀活动执行SOP，推动记者节参与人数同比提升30%，活动新闻稿单篇阅读量800+，获学院官网首页推荐</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="media-grid" style="margin-bottom:20px;" id="project-campus">
+                <div class="media-item editable-item" data-type="media" data-index="0">
+                    <div class="edit-actions">
+                        <button class="btn-replace" onclick="replaceMedia('project-campus',0,'image')" title="替换">🔄</button>
+                        <button class="btn-delete" onclick="deleteMedia(this)" title="删除">🗑️</button>
+                    </div>
+                    <img src="images/img_2_21.jpeg" alt="学院官网新闻">
+                    <div class="media-desc" contenteditable="false">学院官网新闻稿 · 范长江杯短视频大赛</div>
+                </div>
+                <div class="media-item editable-item" data-type="media" data-index="1">
+                    <div class="edit-actions">
+                        <button class="btn-replace" onclick="replaceMedia('project-campus',1,'image')" title="替换">🔄</button>
+                        <button class="btn-delete" onclick="deleteMedia(this)" title="删除">🗑️</button>
+                    </div>
+                    <img src="images/img_2_22.jpeg" alt="活动现场">
+                    <div class="media-desc" contenteditable="false">文艺汇演活动现场纪实</div>
+                </div>
+            </div>
+
+            <!-- 追星应援 -->
+            <div class="timeline-item editable-item" data-type="project" data-index="4">
+                <div class="edit-actions">
+                    <button class="btn-edit" onclick="editTimeline('project',4)" title="编辑">✏️</button>
+                    <button class="btn-delete" onclick="deleteItem(this)" title="删除">🗑️</button>
+                </div>
+                <div class="timeline-title">追星应援社群运营 · 运营负责人</div>
+                <div class="timeline-date">2023.10 - 2025.11</div>
+                <div class="timeline-content">
+                    <ul>
+                        <li>协助运营两个拼车社群（480人及200人），主导周边拼单项目，优化订单整理与核对流程，订单处理效率提升40%</li>
+                        <li>累计组织周边跟团2000+次，服务200+用户，未出现1次错单、漏单问题，用户满意度达98%</li>
+                    </ul>
+                </div>
+            </div>
+
+            <button class="add-btn" onclick="addTimeline('project')">+ 添加项目经历</button>
+        </div>
+    </div>
+
+    <!-- ========== 获奖作品 ========== -->
+    <div class="window" id="window-awards" style="width:600px;">
+        <div class="window-header">
+            <span class="window-title">获奖作品</span>
+            <div class="window-controls">
+                <button class="window-btn minimize" onclick="closeWindow('awards')"></button>
+                <button class="window-btn maximize" onclick="maximizeWindow('awards')"></button>
+                <button class="window-btn close" onclick="closeWindow('awards')"></button>
+            </div>
+        </div>
+        <div class="window-content">
+            <div class="content-section">
+                <h3 class="content-title">第17届全国大学生广告艺术大赛（四川赛区）</h3>
+                <div class="media-grid" id="awards-certificates">
+                    <div class="media-item editable-item" data-type="media" data-index="0">
+                        <div class="edit-actions">
+                            <button class="btn-replace" onclick="replaceMedia('awards-certificates',0,'image')" title="替换">🔄</button>
+                            <button class="btn-delete" onclick="deleteMedia(this)" title="删除">🗑️</button>
+                        </div>
+                        <img src="images/img_2_9.jpeg" alt="摄影类二等奖">
+                        <div class="media-desc" contenteditable="false">摄影类省级二等奖 ·《光与影石韵》</div>
+                    </div>
+                    <div class="media-item editable-item" data-type="media" data-index="1">
+                        <div class="edit-actions">
+                            <button class="btn-replace" onclick="replaceMedia('awards-certificates',1,'image')" title="替换">🔄</button>
+                            <button class="btn-delete" onclick="deleteMedia(this)" title="删除">🗑️</button>
+                        </div>
+                        <img src="images/img_2_7.jpeg" alt="摄影类三等奖">
+                        <div class="media-desc" contenteditable="false">摄影类省级三等奖 ·《锦都石刻》</div>
+                    </div>
+                    <div class="media-item editable-item" data-type="media" data-index="2">
+                        <div class="edit-actions">
+                            <button class="btn-replace" onclick="replaceMedia('awards-certificates',2,'image')" title="替换">🔄</button>
+                            <button class="btn-delete" onclick="deleteMedia(this)" title="删除">🗑️</button>
+                        </div>
+                        <img src="images/img_2_8.jpeg" alt="摄影类三等奖">
+                        <div class="media-desc" contenteditable="false">摄影类省级三等奖 ·《彩韵漆缘》</div>
+                    </div>
+                    <div class="media-item editable-item" data-type="media" data-index="3">
+                        <div class="edit-actions">
+                            <button class="btn-replace" onclick="replaceMedia('awards-certificates',3,'image')" title="替换">🔄</button>
+                            <button class="btn-delete" onclick="deleteMedia(this)" title="删除">🗑️</button>
+                        </div>
+                        <img src="images/img_2_10.jpeg" alt="短视频类三等奖">
+                        <div class="media-desc" contenteditable="false">短视频类省级三等奖 ·《俄迩梦安，依石而安》</div>
+                    </div>
+                </div>
+                <div class="upload-area" onclick="openAddMedia('awards-certificates')">
+                    <div style="font-size:30px;margin-bottom:10px;">➕</div>
+                    <div>添加获奖证书/作品</div>
+                </div>
+            </div>
+
+            <div class="content-section">
+                <h3 class="content-title">其他奖项</h3>
+                <div class="timeline-item editable-item" data-type="award" data-index="0">
+                    <div class="edit-actions">
+                        <button class="btn-edit" onclick="editText('award',0)" title="编辑">✏️</button>
+                        <button class="btn-delete" onclick="deleteItem(this)" title="删除">🗑️</button>
+                    </div>
+                    <div class="timeline-content">
+                        <ul>
+                            <li>"读懂中国"微视频比赛：校级二等奖</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-section">
+                <h3 class="content-title">获奖摄影作品展示</h3>
+                <div class="media-grid" id="awards-photos">
+                    <div class="media-item editable-item" data-type="media" data-index="0">
+                        <div class="edit-actions">
+                            <button class="btn-replace" onclick="replaceMedia('awards-photos',0,'image')" title="替换">🔄</button>
+                            <button class="btn-delete" onclick="deleteMedia(this)" title="删除">🗑️</button>
+                        </div>
+                        <img src="images/img_2_12.jpeg" alt="安岳石刻摄影">
+                        <div class="media-desc" contenteditable="false">安岳石刻 · 佛教石窟艺术摄影</div>
+                    </div>
+                </div>
+                <div class="upload-area" onclick="openAddMedia('awards-photos')">
+                    <div style="font-size:30px;margin-bottom:10px;">➕</div>
+                    <div>添加获奖作品</div>
+                </div>
+            </div>
+
+            <button class="add-btn" onclick="addTimeline('award')">+ 添加获奖记录</button>
+        </div>
+    </div>
+
+    <!-- ========== 作品集 ========== -->
+    <div class="window" id="window-portfolio" style="width:650px;">
+        <div class="window-header">
+            <span class="window-title">作品集</span>
+            <div class="window-controls">
+                <button class="window-btn minimize" onclick="closeWindow('portfolio')"></button>
+                <button class="window-btn maximize" onclick="maximizeWindow('portfolio')"></button>
+                <button class="window-btn close" onclick="closeWindow('portfolio')"></button>
+            </div>
+        </div>
+        <div class="window-content">
+            <div class="content-section">
+                <h3 class="content-title">品牌策划与设计</h3>
+                <div class="media-grid" id="portfolio-brand">
+                    <div class="media-item editable-item" data-type="media" data-index="0">
+                        <div class="edit-actions">
+                            <button class="btn-replace" onclick="replaceMedia('portfolio-brand',0,'image')" title="替换">🔄</button>
+                            <button class="btn-delete" onclick="deleteMedia(this)" title="删除">🗑️</button>
+                        </div>
+                        <img src="images/img_2_11.jpeg" alt="赤尾品牌策划案">
+                        <div class="media-desc" contenteditable="false">赤尾品牌全案营销策划 · PEST/SWOT分析</div>
+                    </div>
+                    <div class="media-item editable-item" data-type="media" data-index="1">
+                        <div class="edit-actions">
+                            <button class="btn-replace" onclick="replaceMedia('portfolio-brand',1,'image')" title="替换">🔄</button>
+                            <button class="btn-delete" onclick="deleteMedia(this)" title="删除">🗑️</button>
+                        </div>
+                        <img src="images/img_2_13.jpeg" alt="焯牛品牌海报">
+                        <div class="media-desc" contenteditable="false">焯牛品牌形象海报 · 新中式美学</div>
+                    </div>
+                    <div class="media-item editable-item" data-type="media" data-index="2">
+                        <div class="edit-actions">
+                            <button class="btn-replace" onclick="replaceMedia('portfolio-brand',2,'image')" title="替换">🔄</button>
+                            <button class="btn-delete" onclick="deleteMedia(this)" title="删除">🗑️</button>
+                        </div>
+                        <img src="images/img_2_14.jpeg" alt="开工福利海报">
+                        <div class="media-desc" contenteditable="false">开工福利促销海报</div>
+                    </div>
+                    <div class="media-item editable-item" data-type="media" data-index="3">
+                        <div class="edit-actions">
+                            <button class="btn-replace" onclick="replaceMedia('portfolio-brand',3,'image')" title="替换">🔄</button>
+                            <button class="btn-delete" onclick="deleteMedia(this)" title="删除">🗑️</button>
+                        </div>
+                        <img src="images/img_2_15.jpeg" alt="新年礼盒海报">
+                        <div class="media-desc" contenteditable="false">新年礼盒产品广告</div>
+                    </div>
+                    <div class="media-item editable-item" data-type="media" data-index="4">
+                        <div class="edit-actions">
+                            <button class="btn-replace" onclick="replaceMedia('portfolio-brand',4,'image')" title="替换">🔄</button>
+                            <button class="btn-delete" onclick="deleteMedia(this)" title="删除">🗑️</button>
+                        </div>
+                        <img src="images/img_2_16.jpeg" alt="情人节海报">
+                        <div class="media-desc" contenteditable="false">情人节主题营销海报</div>
+                    </div>
+                </div>
+                <div class="upload-area" onclick="openAddMedia('portfolio-brand')">
+                    <div style="font-size:30px;margin-bottom:10px;">➕</div>
+                    <div>添加品牌策划作品</div>
+                </div>
+            </div>
+
+            <div class="content-section">
+                <h3 class="content-title">摄影摄像作品</h3>
+                <div class="media-grid" id="portfolio-photo">
+                    <div class="media-item editable-item" data-type="media" data-index="0">
+                        <div class="edit-actions">
+                            <button class="btn-replace" onclick="replaceMedia('portfolio-photo',0,'video')" title="替换">🔄</button>
+                            <button class="btn-delete" onclick="deleteMedia(this)" title="删除">🗑️</button>
+                        </div>
+                        <video controls style="width:100%;height:180px;object-fit:cover;">
+                            <source src="videos/video2.mp4" type="video/mp4">
+                            您的浏览器不支持视频播放
+                        </video>
+                        <div class="media-desc" contenteditable="false">安岳石刻 · 人文摄影摄像</div>
+                    </div>
+                    <div class="media-item editable-item" data-type="media" data-index="1">
+                        <div class="edit-actions">
+                            <button class="btn-replace" onclick="replaceMedia('portfolio-photo',1,'image')" title="替换">🔄</button>
+                            <button class="btn-delete" onclick="deleteMedia(this)" title="删除">🗑️</button>
+                        </div>
+                        <img src="images/img_2_2.jpeg" alt="滑雪摄影">
+                        <div class="media-desc" contenteditable="false">滑雪场 · 运动摄影</div>
+                    </div>
+                    <div class="media-item editable-item" data-type="media" data-index="2">
+                        <div class="edit-actions">
+                            <button class="btn-replace" onclick="replaceMedia('portfolio-photo',2,'image')" title="替换">🔄</button>
+                            <button class="btn-delete" onclick="deleteMedia(this)" title="删除">🗑️</button>
+                        </div>
+                        <img src="images/img_2_3.jpeg" alt="户外探险">
+                        <div class="media-desc" contenteditable="false">丛林探险 · 旅行摄影</div>
+                    </div>
+                </div>
+                <div class="upload-area" onclick="openAddMedia('portfolio-photo')">
+                    <div style="font-size:30px;margin-bottom:10px;">➕</div>
+                    <div>添加摄影作品</div>
+                </div>
+            </div>
+
+            <div class="content-section">
+                <h3 class="content-title">🎬 AI视频创作</h3>
+                <div class="media-grid" id="portfolio-video">
+                    <div class="media-item editable-item" data-type="media" data-index="0">
+                        <div class="edit-actions">
+                            <button class="btn-replace" onclick="replaceMedia('portfolio-video',0,'video')" title="替换">🔄</button>
+                            <button class="btn-delete" onclick="deleteMedia(this)" title="删除">🗑️</button>
+                        </div>
+                        <video controls style="width:100%;height:180px;object-fit:cover;">
+                            <source src="videos/ai_ad_video.mp4" type="video/mp4">
+                            您的浏览器不支持视频播放
+                        </video>
+                        <div class="media-desc" contenteditable="false">AI生成视频广告 · 品牌营销创意</div>
+                    </div>
+                </div>
+                <div class="upload-area" onclick="openAddMedia('portfolio-video')">
+                    <div style="font-size:30px;margin-bottom:10px;">➕</div>
+                    <div>添加AI视频作品</div>
+                </div>
+            </div>
+
+            <div class="content-section">
+                <h3 class="content-title">运营数据与成果</h3>
+                <div class="media-grid" id="portfolio-data">
+                    <div class="media-item editable-item" data-type="media" data-index="0">
+                        <div class="edit-actions">
+                            <button class="btn-replace" onclick="replaceMedia('portfolio-data',0,'image')" title="替换">🔄</button>
+                            <button class="btn-delete" onclick="deleteMedia(this)" title="删除">🗑️</button>
+                        </div>
+                        <img src="images/img_2_17.jpeg" alt="抖音企业号">
+                        <div class="media-desc" contenteditable="false">抖音企业号运营 · 264条内容</div>
+                    </div>
+                    <div class="media-item editable-item" data-type="media" data-index="1">
+                        <div class="edit-actions">
+                            <button class="btn-replace" onclick="replaceMedia('portfolio-data',1,'image')" title="替换">🔄</button>
+                            <button class="btn-delete" onclick="deleteMedia(this)" title="删除">🗑️</button>
+                        </div>
+                        <img src="images/img_2_18.jpeg" alt="经营数据">
+                        <div class="media-desc" contenteditable="
